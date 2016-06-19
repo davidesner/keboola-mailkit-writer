@@ -41,6 +41,7 @@
             "uniqueItems": true,
             "items": {
                 "type": "object",
+                "title": "Mapping",
                 "properties": {
                     "srcCol": {
                         "type": "string",

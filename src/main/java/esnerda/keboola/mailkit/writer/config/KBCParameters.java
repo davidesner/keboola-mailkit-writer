@@ -43,7 +43,7 @@ public class KBCParameters {
     @JsonCreator
     public KBCParameters(@JsonProperty("clientId") String clientId, @JsonProperty("#clientMd5") String clientMd5,
             @JsonProperty("listId") String listId, @JsonProperty("columnMapping") List<ColumnMapping> colMapping,
-            @JsonProperty("newList") NewList newList) throws ParseException {
+            @JsonProperty("newList") NewList newList) {
         parametersMap = new HashMap();
         this.clientId = clientId;
         this.clientMd5 = clientMd5;
@@ -114,7 +114,7 @@ public class KBCParameters {
             error += "\n List ID parameter is missing. Either specify new list or list ID";
         }
 
-        if (this.newList != null && this.newList.name.equals("")) {
+        if (this.newList != null && (this.newList.name != null && this.newList.name.equals(""))) {
             error += "\n New list name cannot be empty string!";
         }
         if (this.colMapping != null && !this.colMapping.isEmpty()) {

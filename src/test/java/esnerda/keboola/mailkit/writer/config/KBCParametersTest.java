@@ -3,29 +3,23 @@
 package esnerda.keboola.mailkit.writer.config;
 
 import esnerda.keboola.mailkit.writer.mailkitapi.requests.StreamingListImport;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import junit.framework.TestCase;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 
 /**
  *
  * @author David Esner <esnerda at gmail.com>
  */
+@RunWith(JUnit4.class)
+
 public class KBCParametersTest extends TestCase {
 
-    public KBCParametersTest(String testName) {
-        super(testName);
-    }
-
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
-    }
-
-    @Override
-    protected void tearDown() throws Exception {
-        super.tearDown();
+    public KBCParametersTest() {
     }
 
     /**
@@ -34,15 +28,27 @@ public class KBCParametersTest extends TestCase {
      * @throws esnerda.keboola.mailkit.writer.config.ValidationException
      */
     @Test(expected = ValidationException.class)
-    public void validateParametersShouldThrowExceptionOnInvalidParams() throws ValidationException {
+    public void validateParametersShouldFailOnNullParams() throws ValidationException {
         System.out.println("validateParametres");
+        KBCParameters instance = new KBCParameters(null, null, null, null, null);
+        assertEquals(false, instance.validateParametres());
 
-        KBCParameters instance = new KBCParameters();
-        boolean expResult = false;
-        boolean result = instance.validateParametres();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+    }
+
+    @Test(expected = ValidationException.class)
+    public void validateParametersShouldFailOnEmptyParams() throws ValidationException {
+        KBCParameters instance = new KBCParameters("", "", "", new ArrayList<>(), new KBCParameters.NewList());
+        assertEquals(false, instance.validateParametres());
+
+    }
+
+    @Test(expected = ValidationException.class)
+    public void validateParametersShouldFailOnEmptyListId() throws ValidationException {
+        KBCParameters instance = new KBCParameters("", "", "", new ArrayList<>(), new KBCParameters.NewList());
+        assertEquals(false, instance.validateParametres());
+        instance = new KBCParameters("", null, "", new ArrayList<>(), new KBCParameters.NewList());
+        assertEquals(false, instance.validateParametres());
+
     }
 
 }

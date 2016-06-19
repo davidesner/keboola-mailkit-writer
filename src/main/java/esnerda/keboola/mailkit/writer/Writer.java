@@ -11,13 +11,10 @@ import esnerda.keboola.mailkit.writer.mailkitapi.requests.CreateList;
 import esnerda.keboola.mailkit.writer.mailkitapi.requests.MailkitRequest;
 import esnerda.keboola.mailkit.writer.mailkitapi.requests.StreamingListImport;
 import esnerda.keboola.mailkit.writer.mailkitapi.responses.CreateListResponse;
-import esnerda.keboola.mailkit.writer.mailkitapi.responses.ImportListResponse;
 import esnerda.keboola.mailkit.writer.mailkitapi.responses.MailkitResponse;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

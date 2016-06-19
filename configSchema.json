@@ -1,0 +1,110 @@
+{
+    "title": "Mailkit Writer configuration",
+    "type": "object",
+    "properties": {
+        "clientId": {
+            "title": "Client ID",
+            "type": "string",
+            "description": "Mailkit client ID"
+        },
+        "#clientMd5": {
+            "title": "Client MD5",
+            "type": "string",
+            "description": "Mailkit client MD5 hash"
+        },
+        "listId": {
+            "title": "List ID",
+            "type": "string",
+            "description": "Recipient list ID"
+        },
+        "newList": {
+            "title": "Create new list",
+            "type": ["object", "null"],
+            "description": "New list to create. List ID will be overriden with newly created if specified.",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "title": "Name"
+                },
+                "desc": {
+                    "type": "string",
+                    "title": "Description"
+                }
+            },
+            "required": ["name", "desc"]
+        },
+        "columnMapping": {
+            "type": ["array", "null"],
+            "title": "Column mapping",
+            "format": "table",
+            "description": "Source file column mapping.",
+            "uniqueItems": true,
+            "items": {
+                "type": "object",
+                "properties": {
+                    "srcCol": {
+                        "type": "string",
+                        "title": "Source Column"
+                    },
+                    "destCol": {
+                        "type": "string",
+                        "title": "Mailkit Column",
+                        "enum": [
+                            "first_name",
+                            "last_name",
+                            "email",
+                            "status",
+                            "company",
+                            "prefix",
+                            "vocative",
+                            "reply_to",
+                            "nick_name",
+                            "gender",
+                            "phone",
+                            "mobile",
+                            "fax",
+                            "street",
+                            "city",
+                            "state",
+                            "country",
+                            "zip",
+                            "custom1",
+                            "custom2",
+                            "custom3",
+                            "custom4",
+                            "custom5",
+                            "custom6",
+                            "custom7",
+                            "custom8",
+                            "custom9",
+                            "custom10",
+                            "custom11",
+                            "custom12",
+                            "custom13",
+                            "custom14",
+                            "custom15",
+                            "custom16",
+                            "custom17",
+                            "custom18",
+                            "custom19",
+                            "custom20",
+                            "custom21",
+                            "custom22",
+                            "custom23",
+                            "custom24",
+                            "custom25"
+                        ]
+                    }
+
+                },
+                "required": [
+                    "destCol", "srcCol"
+                ]
+
+
+            }
+        }
+    },
+    "required": ["clientId", "#clientMd5", "listId", "newList", "columnMapping"
+    ]
+}

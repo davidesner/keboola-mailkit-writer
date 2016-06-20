@@ -116,6 +116,7 @@ public class Writer {
             System.err.println(ex.getMessage());
             System.exit(1);
         }
+        client.cleanupTempFolder();
 
         System.out.println("Import finished sucessfuly.");
 

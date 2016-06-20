@@ -75,7 +75,7 @@ public class Writer {
         }
 
         KBCParameters parameters = config.getParams();
-        MailkitJsonAPIClient client = new MailkitJsonAPIClient(config.getParams().getClientId(), config.getParams().getClientMd5(), dataPath + File.separator + "tmp");
+        MailkitJsonAPIClient client = new MailkitJsonAPIClient(config.getParams().getClientId(), config.getParams().getClientMd5(), "/tmp/");
 
         String listId = "";
         /*Create new list*/
@@ -116,7 +116,7 @@ public class Writer {
             System.err.println(ex.getMessage());
             System.exit(1);
         }
-        client.cleanupTempFolder();
+        //client.cleanupTempFolder();
 
         System.out.println("Import finished sucessfuly.");
 

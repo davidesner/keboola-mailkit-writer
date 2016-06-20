@@ -26,7 +26,7 @@ The easiest way to use the writer is to provide input table with correct column 
 ###Use case 2
 Create new mailing list and upload the contacts into it.
 
-**NOTE*:* If a list with specified name already exists, the proccess will fail. Such configuration can be run only one time, to update the newly created list again, you need to specify its ID (returned in the standard output).
+**NOTE:** If a list with specified name already exists, the proccess will fail. Such configuration can be run only one time, to update the newly created list again, you need to specify its ID (returned in the standard output).
 
 ![](https://raw.githubusercontent.com/davidesner/keboola-mailkit-writer/master/img/use_case2.png)
 ###Use case 3

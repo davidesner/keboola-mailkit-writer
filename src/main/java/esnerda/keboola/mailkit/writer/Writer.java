@@ -29,28 +29,6 @@ public class Writer {
 
     public static void main(String[] args) {
 
-//        try {
-//            StreamingListImport rq = new StreamingListImport("69608747", "0b78b6d6d563693b61660b1ba3625c59", null, "56957", new File("D:\\Prace\\Keboola\\Mailkit\\recipients.csv"));
-//
-//            MailkitJsonAPIClient client = new MailkitJsonAPIClient("69608747", "0b78b6d6d563693b61660b1ba3625c59", "D:\\Prace\\Keboola\\Mailkit\\dataWriter\\tmp");
-//
-//            MailkitResponse resp = client.executeRequest(rq, true);
-//
-//            if (resp.isError()) {
-//                System.out.println(resp.getErrorMessage());
-//            } else {
-//                System.out.println(resp.getResultMessage());
-//            }
-//
-//        } catch (StreamingListImport.InvalidParamsException ex) {
-//            Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (IOException ex) {
-//            Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (ClientException ex) {
-//            Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
-//        } catch (Exception ex) {
-//            Logger.getLogger(Writer.class.getName()).log(Level.SEVERE, null, ex);
-//        }
         if (args.length == 0) {
             System.out.print("No parameters provided.");
             System.exit(1);

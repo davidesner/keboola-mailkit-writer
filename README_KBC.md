@@ -22,7 +22,13 @@ Input table should match the structure defined in [mailinglist.import](https://w
 ##Sample configurations / use cases
 ###Use case 1
 The easiest way to use the writer is to provide input table with correct column names. This way you don’t need to specify column mapping and the configuration involves just credential parameters and List ID.
+![](https://raw.githubusercontent.com/davidesner/keboola-mailkit-writer/master/img/use_case1.png)
 ###Use case 2
 Create new mailing list and upload the contacts into it.
+
+**NOTE*:* If a list with specified name already exists, the proccess will fail. Such configuration can be run only one time, to update the newly created list again, you need to specify its ID (returned in the standard output).
+
+![](https://raw.githubusercontent.com/davidesner/keboola-mailkit-writer/master/img/use_case2.png)
 ###Use case 3
-Specify the column mapping if the input table structure does not match.
+Specify the column mapping if the input table structure does not match. All source columns must be specified in the mapping otherwise the proccess will fail.
+![](https://raw.githubusercontent.com/davidesner/keboola-mailkit-writer/master/img/use_case3.png)

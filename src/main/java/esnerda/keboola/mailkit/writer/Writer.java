@@ -82,7 +82,7 @@ public class Writer {
         if (parameters.getNewList() != null) {
             System.out.println("Creating new list \"" + parameters.getNewList().getName() + "\"");
             try {
-                MailkitRequest createList = new CreateList(parameters.getNewList().getName(), parameters.getNewList().getName());
+                MailkitRequest createList = new CreateList(parameters.getNewList().getName(), parameters.getNewList().getDesc());
                 MailkitResponse cListResp = client.executeRequest(createList, LOG);
                 if (checkResponseStatus(cListResp, createList)) {
                     listId = ((CreateListResponse) cListResp).getListId();
@@ -105,7 +105,7 @@ public class Writer {
         /*Execute import list*/
         MailkitRequest req;
         MailkitResponse iListResp;
-
+        System.out.println("\nUpdating user list with ID: " + listId);
         try {
             req = new StreamingListImport(parameters.getClientId(), parameters.getClientMd5(), parameters.getColumnMapping(), listId, sourceFile);
             iListResp = client.executeRequest(req, LOG);

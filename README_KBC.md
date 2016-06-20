@@ -6,9 +6,9 @@ The component allows creating and updating Mailkit mailing lists. Simply import 
 
 ##Configuration
 ###Parameters
-- **Client ID ** – *(REQ)* your Mailkit client_id
+- **Client ID** – *(REQ)* your Mailkit client_id
 - **Client MD5** – *(REQ)* Mailkit client MD5 hash.
-- **List ID ** – *(REQ)* The ID of Mailkit recipients list you want to update. The list ID can be retrieved either from URL parameter in the Mailkit GUI or from a list retrieved by Mailkit extractor.
+- **List ID** – *(REQ)* The ID of Mailkit recipients list you want to update. The list ID can be retrieved either from URL parameter in the Mailkit GUI or from a list retrieved by Mailkit extractor.
 - **New List** – *(OPT)* If you wish to create a new list and upload data into it, you may specify this parameter. If specified, the `List ID` parameter will be ignored, since the data will be uploaded into the newly created list.
 - **Column Mapping** – *(OPT)* Specify column name mapping of your source table if it does not match the Mailkit structure specified here: [mailinglist.import](https://www.mailkit.eu/cz/napoveda-pomoc/dokumentace/api/sprava-seznamu-prijemcu/mailkitmailinglistimport/)
  **NOTE**: Please note that mapping for all source table columns must be specified otherwise the upload will fail.

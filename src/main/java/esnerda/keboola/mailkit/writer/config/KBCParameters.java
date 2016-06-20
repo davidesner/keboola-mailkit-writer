@@ -8,8 +8,10 @@ import esnerda.keboola.mailkit.writer.mailkitapi.requests.StreamingListImport;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.apache.commons.lang3.EnumUtils;
 
 /**
@@ -119,9 +121,17 @@ public class KBCParameters {
         }
         if (this.colMapping != null && !this.colMapping.isEmpty()) {
             //validate dest fields
+            Set<String> destCols = new HashSet();
+            Set<String> srcCols = new HashSet();
             for (ColumnMapping cm : this.colMapping) {
                 if (!EnumUtils.isValidEnum(StreamingListImport.ListImportColumns.class, cm.getDestCol().toLowerCase())) {
                     error += "Column " + cm.destCol + " is not valid destination column name. ";
+                }
+                if (!destCols.add(cm.destCol)) {
+                    error += "Mapping for destination column: " + cm.destCol + " is specified more than one time!";
+                }
+                if (!srcCols.add(cm.srcCol)) {
+                    error += "Mapping for src column: " + cm.srcCol + " is specified more than one time!";
                 }
             }
 

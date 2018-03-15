@@ -73,7 +73,7 @@ public class MailkitJsonAPIClient implements MailkitClient {
         List<Header> headers = new ArrayList();
         headers.add(new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json"));
         headers.add(new BasicHeader(HttpHeaders.ACCEPT, "application/json"));
-        this.httpClient = HttpClients.custom().setDefaultHeaders(headers).build();
+        this.httpClient = HttpClients.custom().setDefaultHeaders(headers).disableAutomaticRetries().build();
 
         this.persistFolderPath = persistFolderPath;
     }
@@ -93,7 +93,7 @@ public class MailkitJsonAPIClient implements MailkitClient {
         //set credentials header in request
         req.setClient_id(client_id);
         req.setClient_md5(client_md5);
-
+        System.out.println("Executing request");
         //build request
         HttpPost httppost = new HttpPost(ENDPOINT_URL);
         StringEntity stringEntity = null;
@@ -101,24 +101,28 @@ public class MailkitJsonAPIClient implements MailkitClient {
         try {
 
             if (req.isStreaming()) {
+                System.out.println("Reading request from stream");
                 inEntity = new InputStreamEntity(req.getInputStream());
                 httppost.setEntity(inEntity);
             } else {
+                System.out.println("Reading request from string");
                 stringEntity = new StringEntity(req.getStringRepresentation());
                 httppost.setEntity(stringEntity);
             }
         } catch (Exception ex) {
             throw new ClientException("Error parsing the request. " + ex.getLocalizedMessage());
         }
-
+        System.out.println("Before execute");
         CloseableHttpResponse response;
         try {
+            System.out.println(httppost.toString());
             response = httpClient.execute(httppost);
         } catch (IOException ex) {
             throw new ClientException("Error sending request to API. " + ex.getLocalizedMessage());
         }
         //check response code
         int statusCode = response.getStatusLine().getStatusCode();
+        System.out.println("After execute: " + statusCode);
         if (statusCode >= 300) {
             if (statusCode != 404) {
                 throw new ClientException("API error executing function:" + req.getFunctionCall() + ". \n Http Response code:" + statusCode + " - " + response.getStatusLine().getReasonPhrase());
@@ -127,12 +131,13 @@ public class MailkitJsonAPIClient implements MailkitClient {
             }
         }
 
+        System.out.println("Before getentity");
         HttpEntity entity = response.getEntity();
 
         String shortResp = null;
 
+        System.out.println("After getentity");
         FileOutputStream fos = null;
-
         String resTmpFilePath = getUniqueTmpFilePath(req.getClass().getSimpleName());
         try {
             fos = new FileOutputStream(resTmpFilePath);
@@ -143,6 +148,7 @@ public class MailkitJsonAPIClient implements MailkitClient {
                 long len = entity.getContentLength();
 
                 if (len != -1 && len < 2048) {
+                    System.out.println("Not in a loop");
                     try {
                         //possibly error response
                         shortResp = EntityUtils.toString(entity);
@@ -158,6 +164,7 @@ public class MailkitJsonAPIClient implements MailkitClient {
                     fos.write(shortResp.getBytes());
 
                 } else {
+                    System.out.println("Before while loop");
                     InputStream is = entity.getContent();
                     int inByte;
                     while ((inByte = is.read(buffer)) != -1) {
@@ -181,7 +188,9 @@ public class MailkitJsonAPIClient implements MailkitClient {
             }
 
         }
+        System.out.println("After entity process");
         if (log) {
+            System.out.println("Log on");
             FileInputStream fis = null;
             BufferedWriter out = null;
             try {
@@ -199,11 +208,13 @@ public class MailkitJsonAPIClient implements MailkitClient {
                 out.write("Response:");
                 out.newLine();
                 String aLine = null;
+                System.out.println("Before loop");
                 while ((aLine = in.readLine()) != null) {
                     //Process each line and add output to Dest.txt file
                     out.write(aLine);
                     out.newLine();
                 }
+                System.out.println("After loop");
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(MailkitJsonAPIClient.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
@@ -218,9 +229,10 @@ public class MailkitJsonAPIClient implements MailkitClient {
                 }
             }
         }
+        System.out.println("Before JRF getResponse");
 
         return JsonResponseFactory.getResponse(resTmpFilePath, shortResp, req.getFunction(), req.getClass());
-
+        System.out.println("Adios");
     }
 
     public void setLogFile(String path) {

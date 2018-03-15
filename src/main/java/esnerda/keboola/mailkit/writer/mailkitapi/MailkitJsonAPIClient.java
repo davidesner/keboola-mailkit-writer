@@ -232,7 +232,6 @@ public class MailkitJsonAPIClient implements MailkitClient {
         System.out.println("Before JRF getResponse");
 
         return JsonResponseFactory.getResponse(resTmpFilePath, shortResp, req.getFunction(), req.getClass());
-        System.out.println("Adios");
     }
 
     public void setLogFile(String path) {

@@ -43,6 +43,7 @@ public class StreamingListImport extends MailkitJsonRequest {
         }
         this.setClient_id(client_id);
         this.setClient_md5(client_md5);
+        System.out.println("Building");
 
         this.rqFilePath = buildJsonFile(recipientsCsv, ID_user_list);
         if (this.rqFilePath != null) {
@@ -50,6 +51,7 @@ public class StreamingListImport extends MailkitJsonRequest {
         } else {
             throw new IOException("Unable to build json. ");
         }
+        System.out.println("JSON built");
     }
 
     private String buildJsonFile(File recipientsCsv, String ID_user_list) throws InvalidParamsException, FileNotFoundException, IOException {

@@ -24,7 +24,7 @@ public class ImportListResponse extends MailkitJsonResponse {
         try {
             resp = mapper.readValue(shortResponse, ImportListRespWrapper.class);
         } catch (IOException ex) {
-            this.resultMessage = "Cannot parse the response.";
+            this.resultMessage = "Cannot parse the response." + ex.getMessage();
             return;
         }
         this.resultMessage = buildMessage(resp);

@@ -24,7 +24,12 @@ import java.util.logging.Logger;
 import esnerda.keboola.mailkit.writer.mailkitapi.requests.MailkitJsonRequest;
 import esnerda.keboola.mailkit.writer.mailkitapi.requests.MailkitRequest;
 import esnerda.keboola.mailkit.writer.mailkitapi.responses.JsonResponseFactory;
+import java.io.StringWriter;
+import java.util.concurrent.Executors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
@@ -37,6 +42,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.util.EntityUtils;
+import sun.nio.cs.StandardCharsets;
 
 /**
  *
@@ -73,7 +79,7 @@ public class MailkitJsonAPIClient implements MailkitClient {
         List<Header> headers = new ArrayList();
         headers.add(new BasicHeader(HttpHeaders.CONTENT_TYPE, "application/json"));
         headers.add(new BasicHeader(HttpHeaders.ACCEPT, "application/json"));
-        this.httpClient = HttpClients.custom().setDefaultHeaders(headers).build();
+        this.httpClient = HttpClients.custom().setDefaultHeaders(headers).disableAutomaticRetries().build();
 
         this.persistFolderPath = persistFolderPath;
     }
@@ -93,7 +99,7 @@ public class MailkitJsonAPIClient implements MailkitClient {
         //set credentials header in request
         req.setClient_id(client_id);
         req.setClient_md5(client_md5);
-
+        System.out.println("Executing request");
         //build request
         HttpPost httppost = new HttpPost(ENDPOINT_URL);
         StringEntity stringEntity = null;
@@ -101,48 +107,104 @@ public class MailkitJsonAPIClient implements MailkitClient {
         try {
 
             if (req.isStreaming()) {
+                System.out.println("Reading request from stream");
                 inEntity = new InputStreamEntity(req.getInputStream());
                 httppost.setEntity(inEntity);
             } else {
+                System.out.println("Reading request from string");
                 stringEntity = new StringEntity(req.getStringRepresentation());
                 httppost.setEntity(stringEntity);
             }
         } catch (Exception ex) {
             throw new ClientException("Error parsing the request. " + ex.getLocalizedMessage());
         }
-
-        CloseableHttpResponse response;
+        System.out.println("Before execute");
+        //CloseableHttpResponse response;
+        String stdout = "";
+        String stderr = "";
         try {
-            response = httpClient.execute(httppost);
+            System.out.println("Saving file");
+
+            File targetFile = new File("/data/targetFile.tmp");
+            OutputStream outStream = new FileOutputStream(targetFile);
+            byte[] buffer = new byte[req.getInputStream().available()];
+            req.getInputStream().read(buffer);
+            outStream.write(buffer);
+            IOUtils.closeQuietly(outStream);
+            
+            System.out.println("File saved");
+            Runtime rt = Runtime.getRuntime();
+            //String[] commands = {"/usr/bin/curl -v -X POST -H \"Accept: application/json\" -H \"Content-Type: application/json\" -d @/data/targetFile.tmp https://api.mailkit.eu/json.fcgi"};
+            //String[] commands = {"/usr/bin/curl", "-v -X POST -H \"Accept: application/json\" -H \"Content-Type: application/json\" -d @/data/targetFile.tmp https://api.mailkit.eu/json.fcgi"};
+            //Process proc = rt.exec(commands);
+            ProcessBuilder pb = new ProcessBuilder("/usr/bin/curl", "-v", "-X", "POST", "-H", "Accept: application/json", "-H", "Content-Type: application/json", "-d", "@/data/targetFile.tmp", "https://api.mailkit.eu/json.fcgi");
+            Process proc = pb.start();
+            System.out.println("stdout");
+            stdout = IOUtils.toString(proc.getInputStream());
+            System.out.println(stdout);
+            System.out.println("stderrr");
+            stderr = IOUtils.toString(proc.getErrorStream());
+            System.out.println(stderr);
+            
+            /*
+            BufferedReader stdInput = new BufferedReader(new 
+                 InputStreamReader(proc.getInputStream()));
+
+            BufferedReader stdError = new BufferedReader(new 
+                 InputStreamReader(proc.getErrorStream()));                       
+            
+            stdout = org.apache.commons.io.IOUtils.toString(stdInput);
+            stderr = org.apache.commons.io.IOUtils.toString(stdError);
+            */
+            //System.out.println(httppost.toString());
+            //response = httpClient.execute(httppost);
         } catch (IOException ex) {
             throw new ClientException("Error sending request to API. " + ex.getLocalizedMessage());
+        } catch (Exception ex) {
+            Logger.getLogger(MailkitJsonAPIClient.class.getName()).log(Level.SEVERE, "other ex", ex);
         }
+        
         //check response code
-        int statusCode = response.getStatusLine().getStatusCode();
+        /*
+        Pattern p1 = Pattern.compile("< HTTP/1\\.1 ([0-9]{3})");
+        Matcher m1 = p1.matcher(stderr);
+        int statusCode = Integer.parseInt(m1.group(1));
+        String statusLine = m1.group(0);
+        
+        //int statusCode = response.getStatusLine().getStatusCode();
+        System.out.println("After execute: " + statusCode);
         if (statusCode >= 300) {
             if (statusCode != 404) {
-                throw new ClientException("API error executing function:" + req.getFunctionCall() + ". \n Http Response code:" + statusCode + " - " + response.getStatusLine().getReasonPhrase());
+                throw new ClientException("API error executing function:" + req.getFunctionCall() + ". \n Http Response code:" + statusCode + " - " + statusLine);
             } else {
 
             }
         }
+        */
 
-        HttpEntity entity = response.getEntity();
+        System.out.println("Before getentity");
+        //HttpEntity entity = response.getEntity();
+        /*
+        Pattern p2 = Pattern.compile("<\n\n(.*)");
+        Matcher m2 = p2.matcher(stdout);
+        String shortResp = m2.group(1);
+        */
+        String shortResp = stdout;
 
-        String shortResp = null;
-
+        System.out.println("After getentity");
         FileOutputStream fos = null;
-
         String resTmpFilePath = getUniqueTmpFilePath(req.getClass().getSimpleName());
         try {
             fos = new FileOutputStream(resTmpFilePath);
-
+            fos.write(shortResp.getBytes());
+            /*
             byte[] buffer = new byte[1024];
 
             if (entity != null) {
                 long len = entity.getContentLength();
 
                 if (len != -1 && len < 2048) {
+                    System.out.println("Not in a loop");
                     try {
                         //possibly error response
                         shortResp = EntityUtils.toString(entity);
@@ -158,6 +220,7 @@ public class MailkitJsonAPIClient implements MailkitClient {
                     fos.write(shortResp.getBytes());
 
                 } else {
+                    System.out.println("Before while loop");
                     InputStream is = entity.getContent();
                     int inByte;
                     while ((inByte = is.read(buffer)) != -1) {
@@ -166,6 +229,7 @@ public class MailkitJsonAPIClient implements MailkitClient {
                 }
 
             }
+            */
         } catch (FileNotFoundException ex) {
             throw new ClientException("Unable to write response to filesystem. For "
                     + req.getClass().getSimpleName() + "\n" + ex.getMessage());
@@ -174,17 +238,20 @@ public class MailkitJsonAPIClient implements MailkitClient {
                     + req.getClass().getSimpleName() + "\n" + ex.getMessage());
         } finally {
             try {
-                response.close();
+                //response.close();
                 fos.close();
             } catch (Exception ex) {
 
             }
 
         }
+        System.out.println("After entity process");
         if (log) {
+            System.out.println("Log on");
             FileInputStream fis = null;
             BufferedWriter out = null;
             try {
+                setLogFile("log.txt");
                 File fin = new File(resTmpFilePath);
                 fis = new FileInputStream(fin);
                 BufferedReader in = new BufferedReader(new InputStreamReader(fis));
@@ -199,11 +266,13 @@ public class MailkitJsonAPIClient implements MailkitClient {
                 out.write("Response:");
                 out.newLine();
                 String aLine = null;
+                System.out.println("Before loop");
                 while ((aLine = in.readLine()) != null) {
                     //Process each line and add output to Dest.txt file
                     out.write(aLine);
                     out.newLine();
                 }
+                System.out.println("After loop");
             } catch (FileNotFoundException ex) {
                 Logger.getLogger(MailkitJsonAPIClient.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
@@ -218,9 +287,9 @@ public class MailkitJsonAPIClient implements MailkitClient {
                 }
             }
         }
+        System.out.println("Before JRF getResponse");
 
         return JsonResponseFactory.getResponse(resTmpFilePath, shortResp, req.getFunction(), req.getClass());
-
     }
 
     public void setLogFile(String path) {

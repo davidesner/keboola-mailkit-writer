@@ -24,7 +24,7 @@ import java.util.Map;
 public class Writer {
 
     private final static int REQUEST_WAIT_INTERVAL = 0;
-    private final static boolean LOG = false;
+    private final static boolean LOG = true;
     private final static String logName = "log.txt";
 
     public static void main(String[] args) {
@@ -108,7 +108,9 @@ public class Writer {
         System.out.println("\nUpdating user list with ID: " + listId);
         try {
             req = new StreamingListImport(parameters.getClientId(), parameters.getClientMd5(), parameters.getColumnMapping(), listId, sourceFile);
+            System.out.println("Execute request");
             iListResp = client.executeRequest(req, LOG);
+            System.out.println("Check response status");
             checkResponseStatus(iListResp, req);
             System.out.println(iListResp.getResultMessage());
 

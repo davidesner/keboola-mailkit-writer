@@ -2,8 +2,6 @@
  */
 package esnerda.keboola.mailkit.writer.mailkitapi;
 
-import esnerda.keboola.mailkit.writer.mailkitapi.responses.MailkitJsonResponse;
-import esnerda.keboola.mailkit.writer.mailkitapi.responses.MailkitResponse;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,37 +10,28 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import esnerda.keboola.mailkit.writer.mailkitapi.requests.MailkitJsonRequest;
-import esnerda.keboola.mailkit.writer.mailkitapi.requests.MailkitRequest;
-import esnerda.keboola.mailkit.writer.mailkitapi.responses.JsonResponseFactory;
-import java.io.StringWriter;
-import java.util.concurrent.Executors;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.Header;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpHeaders;
-import org.apache.http.ParseException;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicHeader;
-import org.apache.http.util.EntityUtils;
-import sun.nio.cs.StandardCharsets;
+
+import esnerda.keboola.mailkit.writer.mailkitapi.requests.MailkitRequest;
+import esnerda.keboola.mailkit.writer.mailkitapi.responses.JsonResponseFactory;
+import esnerda.keboola.mailkit.writer.mailkitapi.responses.MailkitResponse;
 
 /**
  *
@@ -107,23 +96,20 @@ public class MailkitJsonAPIClient implements MailkitClient {
         try {
 
             if (req.isStreaming()) {
-                System.out.println("Reading request from stream");
                 inEntity = new InputStreamEntity(req.getInputStream());
                 httppost.setEntity(inEntity);
             } else {
-                System.out.println("Reading request from string");
                 stringEntity = new StringEntity(req.getStringRepresentation());
                 httppost.setEntity(stringEntity);
             }
         } catch (Exception ex) {
             throw new ClientException("Error parsing the request. " + ex.getLocalizedMessage());
         }
-        System.out.println("Before execute");
-        //CloseableHttpResponse response;
+
         String stdout = "";
         String stderr = "";
         try {
-            System.out.println("Saving file");
+
 
             File targetFile = new File("/data/targetFile.tmp");
             OutputStream outStream = new FileOutputStream(targetFile);
@@ -131,67 +117,25 @@ public class MailkitJsonAPIClient implements MailkitClient {
             req.getInputStream().read(buffer);
             outStream.write(buffer);
             IOUtils.closeQuietly(outStream);
-            
-            System.out.println("File saved");
+
             Runtime rt = Runtime.getRuntime();
-            //String[] commands = {"/usr/bin/curl -v -X POST -H \"Accept: application/json\" -H \"Content-Type: application/json\" -d @/data/targetFile.tmp https://api.mailkit.eu/json.fcgi"};
-            //String[] commands = {"/usr/bin/curl", "-v -X POST -H \"Accept: application/json\" -H \"Content-Type: application/json\" -d @/data/targetFile.tmp https://api.mailkit.eu/json.fcgi"};
-            //Process proc = rt.exec(commands);
+
             ProcessBuilder pb = new ProcessBuilder("/usr/bin/curl", "-v", "-X", "POST", "-H", "Accept: application/json", "-H", "Content-Type: application/json", "-d", "@/data/targetFile.tmp", "https://api.mailkit.eu/json.fcgi");
             Process proc = pb.start();
-            System.out.println("stdout");
-            stdout = IOUtils.toString(proc.getInputStream());
-            System.out.println(stdout);
-            System.out.println("stderrr");
-            stderr = IOUtils.toString(proc.getErrorStream());
-            System.out.println(stderr);
-            
-            /*
-            BufferedReader stdInput = new BufferedReader(new 
-                 InputStreamReader(proc.getInputStream()));
 
-            BufferedReader stdError = new BufferedReader(new 
-                 InputStreamReader(proc.getErrorStream()));                       
-            
-            stdout = org.apache.commons.io.IOUtils.toString(stdInput);
-            stderr = org.apache.commons.io.IOUtils.toString(stdError);
-            */
-            //System.out.println(httppost.toString());
-            //response = httpClient.execute(httppost);
+            stdout = IOUtils.toString(proc.getInputStream());
+            stderr = IOUtils.toString(proc.getErrorStream());
+;
+
         } catch (IOException ex) {
             throw new ClientException("Error sending request to API. " + ex.getLocalizedMessage());
         } catch (Exception ex) {
             Logger.getLogger(MailkitJsonAPIClient.class.getName()).log(Level.SEVERE, "other ex", ex);
         }
-        
-        //check response code
-        /*
-        Pattern p1 = Pattern.compile("< HTTP/1\\.1 ([0-9]{3})");
-        Matcher m1 = p1.matcher(stderr);
-        int statusCode = Integer.parseInt(m1.group(1));
-        String statusLine = m1.group(0);
-        
-        //int statusCode = response.getStatusLine().getStatusCode();
-        System.out.println("After execute: " + statusCode);
-        if (statusCode >= 300) {
-            if (statusCode != 404) {
-                throw new ClientException("API error executing function:" + req.getFunctionCall() + ". \n Http Response code:" + statusCode + " - " + statusLine);
-            } else {
 
-            }
-        }
-        */
-
-        System.out.println("Before getentity");
-        //HttpEntity entity = response.getEntity();
-        /*
-        Pattern p2 = Pattern.compile("<\n\n(.*)");
-        Matcher m2 = p2.matcher(stdout);
-        String shortResp = m2.group(1);
-        */
         String shortResp = stdout;
 
-        System.out.println("After getentity");
+
         FileOutputStream fos = null;
         String resTmpFilePath = getUniqueTmpFilePath(req.getClass().getSimpleName());
         try {

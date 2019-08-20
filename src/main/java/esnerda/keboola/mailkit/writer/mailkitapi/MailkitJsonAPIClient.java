@@ -125,7 +125,13 @@ public class MailkitJsonAPIClient implements MailkitClient {
 
             stdout = IOUtils.toString(proc.getInputStream());
             stderr = IOUtils.toString(proc.getErrorStream());
-;
+            if (stdout.contains("\"error\"")) {
+            	throw new IOException(stdout);
+            }
+            
+            //System.out.println(stderr);
+            //System.out.println(stdout);
+            
 
         } catch (IOException ex) {
             throw new ClientException("Error sending request to API. " + ex.getLocalizedMessage());
